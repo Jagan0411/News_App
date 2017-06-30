@@ -1,105 +1,98 @@
 package com.example.harish.news_app;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.example.harish.news_app.pojo.NewsItem;
 import com.example.harish.news_app.utilities.NetworkUtils;
+
+import org.json.JSONException;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements News_Adapter.ItemClickListener{
 
-    private EditText mSearchBoxEditText;
-
-    private TextView mUrlDisplayTextView;
-
-    private TextView mSearchResultsTextView;
-
-    private TextView errorMessage;
-
+    private TextView news_data;
     private ProgressBar pBar;
+    private  News_Adapter news_adapter;
+    private RecyclerView recyclerView;
+    private  TextView errorMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mSearchBoxEditText = (EditText) findViewById(R.id.search_box);
-        mUrlDisplayTextView = (TextView) findViewById(R.id.url_display);
-        mSearchResultsTextView = (TextView) findViewById(R.id.search_results_json);
-        errorMessage = (TextView) findViewById(R.id.error_message_display);
+        /*news_data = (TextView) findViewById(R.id.news_data);*/
         pBar = (ProgressBar) findViewById(R.id.pb_loading_indicator);
+        errorMessage = (TextView) findViewById(R.id.error_message_display);
+        recyclerView = (RecyclerView) findViewById(R.id.news_data);
+
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false);
+        recyclerView.setLayoutManager(linearLayoutManager);
+
+        recyclerView.setHasFixedSize(true);
+
+        news_adapter = new News_Adapter(this);
+
+        recyclerView.setAdapter(news_adapter);
+
+        loadNewsData();
 
     }
 
-    private void makeSearchQuery()
+
+    public void loadNewsData() {
+        showJsonDataView();
+        QueryTask qt = new QueryTask();
+        qt.execute();
+
+    }
+
+   /* private void makeSearchQuery()
     {
-        String gitQuery = mSearchBoxEditText.toString();
-        URL gitURL = NetworkUtils.buildUrl(gitQuery);
-        mUrlDisplayTextView.setText(gitURL.toString());
+        //String gitQuery = mSearchBoxEditText.toString();
+        URL gitURL = NetworkUtils.buildUrl();
+        news_data.setText(gitURL.toString());
         new QueryTask().execute(gitURL);
-    }
+    }*/
 
     private void showJsonDataView()
     {
         errorMessage.setVisibility(View.INVISIBLE);
-        mSearchResultsTextView.setVisibility(View.VISIBLE);
+        recyclerView.setVisibility(View.VISIBLE);
     }
 
     private void  showErrorMessage(){
         errorMessage.setVisibility(View.VISIBLE);
-        mSearchResultsTextView.setVisibility(View.INVISIBLE);
+        recyclerView.setVisibility(View.INVISIBLE);
     }
 
-    public class QueryTask extends AsyncTask<URL,Void,String>
+
+    @Override
+    public void onListItemClick(int position)
     {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            pBar.setVisibility(View.VISIBLE);
+        ArrayList<NewsItem> news_info = news_adapter.getNewsItems();
+        Uri page = Uri.parse(news_info.get(position).getUrl());
+        Intent i = new Intent(Intent.ACTION_VIEW,page);
+        if(i.resolveActivity(getPackageManager()) != null)
+        {
+            startActivity(i);
         }
 
-        @Override
-        protected String doInBackground(URL... urls) {
-            URL searchURL = urls[0];
-            String searchResults = null;
-
-            try {
-                searchResults = NetworkUtils.getResponseFromHttpUrl(searchURL);
-            }catch (IOException e)
-            {
-                e.printStackTrace();
-            }
-
-            return searchResults;
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-
-            pBar.setVisibility(View.INVISIBLE);
-
-            if(s!= null && !s.equals(""))
-            {
-                showJsonDataView();
-                mSearchResultsTextView.setText(s);
-            }
-            else{
-                showErrorMessage();
-            }
-        }
     }
-
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -112,10 +105,59 @@ public class MainActivity extends AppCompatActivity {
         int itemThatWasClickedId = item.getItemId();
         if (itemThatWasClickedId == R.id.action_search) {
 
-            makeSearchQuery();
+            news_adapter.setNewsItems(null);
+            /*makeSearchQuery();*/
 
-            return true;
+            loadNewsData();
+            /*return true;*/
         }
-        return super.onOptionsItemSelected(item);
+        return true;
+        /*return super.onOptionsItemSelected(item);*/
     }
+
+
+    public class QueryTask extends AsyncTask<URL,Void,ArrayList<NewsItem>>
+    {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pBar.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected ArrayList<NewsItem> doInBackground(URL... urls) {
+
+            ArrayList<NewsItem> searchResults = null;
+
+            URL url = NetworkUtils.buildUrl();
+
+            try {
+                String json = NetworkUtils.getResponseFromHttpUrl(url);
+                searchResults = NetworkUtils.parsingJson(json);
+            }catch (IOException e)
+            {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            return searchResults;
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<NewsItem> items) {
+            super.onPostExecute(items);
+            pBar.setVisibility(View.INVISIBLE);
+
+            if(items!= null && !items.equals(""))
+            {
+                showJsonDataView();
+                news_adapter.setNewsItems(items);
+            }
+            else{
+                showErrorMessage();
+            }
+        }
+    }
+
 }

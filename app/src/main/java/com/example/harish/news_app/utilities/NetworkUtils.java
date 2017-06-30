@@ -2,11 +2,18 @@ package com.example.harish.news_app.utilities;
 
 import android.net.Uri;
 
+import com.example.harish.news_app.pojo.NewsItem;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
@@ -27,16 +34,7 @@ public class NetworkUtils {
     final static String PARAM_KEY = "apiKey";
     final static String apiKEY = "6fb48b5dbbea4f6ba7b851c5cc110508";
 
-    final static String PARAM_SEARCH = "search";
-
-
-    /**
-     * Builds the URL used to query Github.
-     *
-     * @param searchQuery The keyword that will be queried for.
-     * @return The URL to use to query the weather server.
-     */
-    public static URL buildUrl(String searchQuery) {
+    public static URL buildUrl() {
 
         Uri uri = Uri.parse(NEWSAPP_BASE_URL).buildUpon().appendQueryParameter(PARAM_SOURCE,source)
                 .appendQueryParameter(PARAM_SORT,sortBy).appendQueryParameter(PARAM_KEY,apiKEY).build();
@@ -76,4 +74,28 @@ public class NetworkUtils {
             urlConnection.disconnect();
         }
     }
+
+
+    public static ArrayList<NewsItem> parsingJson(String jsonVal) throws JSONException {
+        ArrayList<NewsItem> result = new ArrayList<>();
+        JSONObject main = new JSONObject(jsonVal);
+        JSONArray items = main.getJSONArray("articles");
+
+        for (int i = 0; i < items.length(); i++)
+        {
+            JSONObject item = items.getJSONObject(i);
+            String author= item.getString("author");
+            String title = item.getString("title");
+            String desc = item.getString("description");
+            String urlstring = item.getString("url");
+            String imageurl = item.getString("urlToImage");
+            String date = item.getString("publishedAt");
+
+            NewsItem newsItem = new NewsItem(author, title, desc, urlstring, imageurl, date);
+            result.add(newsItem);
+        }
+
+        return result;
+    }
+
 }
