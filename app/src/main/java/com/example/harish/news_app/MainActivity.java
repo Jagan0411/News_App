@@ -58,9 +58,11 @@ public class MainActivity extends AppCompatActivity implements News_Adapter.Item
 
         //loadNewsData();
 
+        /*Getting shared preferences and it's boolean.*/
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         boolean bool = sharedPreferences.getBoolean("bool",true);
 
+        //Starting the loader as it's the first instance
         if (bool)
         {
             getSupportLoaderManager().initLoader(NEWS_APP_LOADER, null, MainActivity.this);
@@ -69,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements News_Adapter.Item
             editor.commit();
         }
 
+        //Scheduling the job
         JobDispatcher.schedule(this);
 
     }
@@ -241,6 +244,7 @@ public class MainActivity extends AppCompatActivity implements News_Adapter.Item
         }
     }
 
+    //Asynctask created to load data after loader starts
     @Override
     public Loader<Void> onCreateLoader(int id, Bundle args) {
         return new AsyncTaskLoader<Void>(this) {
@@ -260,6 +264,7 @@ public class MainActivity extends AppCompatActivity implements News_Adapter.Item
         };
     }
 
+    //Refreshing the views
     @Override
     public void onLoadFinished(Loader<Void> loader, Void data) {
         pBar.setVisibility(View.GONE);

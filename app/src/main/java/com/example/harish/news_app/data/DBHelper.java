@@ -20,6 +20,7 @@ public class DBHelper extends SQLiteOpenHelper {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
+    //Creating the table on initialization
     @Override
     public void onCreate(SQLiteDatabase db) {
 

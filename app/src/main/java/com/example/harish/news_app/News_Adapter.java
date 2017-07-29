@@ -88,7 +88,7 @@ public class News_Adapter extends RecyclerView.Adapter<News_Adapter.NewsViewHold
         if (cursor != null) cursor.close();
         cursor = cursor1;
         if (cursor1 != null) {
-            this.notifyDataSetChanged();
+            this.notifyDataSetChanged(); //Refreshing rv
         }
     }
 
@@ -126,6 +126,7 @@ public class News_Adapter extends RecyclerView.Adapter<News_Adapter.NewsViewHold
 
         }
 
+        //Binding to recyclerview from db
         void onBind(int position) {
             cursor.moveToPosition(position);
             title.setText(cursor.getString(cursor.getColumnIndex(COLUMN_NAME_TITLE)));
@@ -151,6 +152,7 @@ public class News_Adapter extends RecyclerView.Adapter<News_Adapter.NewsViewHold
         }
 
     }
+    //Parsing date and returning the same
     public static String DateParse(String input) throws ParseException
     {
         SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-d'T'HH:mm:ss'Z'");

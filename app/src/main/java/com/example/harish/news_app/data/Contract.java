@@ -6,6 +6,7 @@ import android.provider.BaseColumns;
  * Created by harish on 28-07-2017.
  */
 
+//Creating constants for the table
 public class Contract {
 
     public static class NEWS_TABLE implements BaseColumns {

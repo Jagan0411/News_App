@@ -16,6 +16,7 @@ import static com.example.harish.news_app.data.Contract.NEWS_TABLE.*;
 
 public class DBUtils {
 
+    //Getting the rows from the table
     public static Cursor getAll(SQLiteDatabase db) {
         Cursor cursor = db.query(
                 TABLE_NAME,
@@ -29,6 +30,7 @@ public class DBUtils {
         return cursor;
     }
 
+    //Insert data
     public static void bulkInsert(SQLiteDatabase db, ArrayList<NewsItem> articles) {
         db.beginTransaction();
         try {
@@ -49,6 +51,7 @@ public class DBUtils {
         }
     }
 
+    //Deletion of data
     public static void deleteAll(SQLiteDatabase db) {
         db.delete(TABLE_NAME, null, null);
     }

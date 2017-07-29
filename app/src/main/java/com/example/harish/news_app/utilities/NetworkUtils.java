@@ -102,7 +102,7 @@ public class NetworkUtils {
         return result;
     }
 
-
+    //Reloading the db in background
     public static void reloadDB(Context context)  {
         ArrayList<NewsItem> result = null;
         URL  url = buildUrl();

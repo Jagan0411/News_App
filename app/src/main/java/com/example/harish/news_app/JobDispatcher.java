@@ -18,17 +18,20 @@ public class JobDispatcher  {
 
     private static boolean bool;
 
+    //Syncing for making the data concurrent
     synchronized public static void schedule( final Context context){
 
         if(bool) {
             return;
         }
 
+        //Creating driver object
         Driver driver = new GooglePlayDriver(context);
 
+        //Creating firebase's job dispatcher
         FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(driver);
 
-
+        //Job constraints set
         Job constraintRefreshJob = dispatcher.newJobBuilder()
                 .setService(RefreshService.class)
                 .setTag("news_refresh")
@@ -41,7 +44,7 @@ public class JobDispatcher  {
 
 
         dispatcher.schedule(constraintRefreshJob);
-        bool = true;
+        bool = true; //setting it to true for scheduled jobs
     }
 
 }

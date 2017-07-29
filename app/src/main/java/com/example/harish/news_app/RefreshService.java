@@ -37,7 +37,7 @@ public class RefreshService extends JobService {
         };
 
         asyncTaskLoader.startLoading();
-        jobFinished(params, false);
+        jobFinished(params, false); //End of job and setting boolean to false for completed jobs.
 
         return true;
     }
@@ -47,7 +47,7 @@ public class RefreshService extends JobService {
 
         if (asyncTaskLoader != null)
         {
-            asyncTaskLoader.cancelLoad();
+            asyncTaskLoader.cancelLoad();//Cancelling the AsyncTask on job completion
         }
 
         return true;
