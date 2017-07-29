@@ -1,7 +1,11 @@
 package com.example.harish.news_app.utilities;
 
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 
+import com.example.harish.news_app.data.DBHelper;
+import com.example.harish.news_app.data.DBUtils;
 import com.example.harish.news_app.pojo.NewsItem;
 
 import org.json.JSONArray;
@@ -96,6 +100,29 @@ public class NetworkUtils {
         }
 
         return result;
+    }
+
+
+    public static void reloadDB(Context context)  {
+        ArrayList<NewsItem> result = null;
+        URL  url = buildUrl();
+        SQLiteDatabase sqLiteDatabase = new DBHelper(context).getWritableDatabase();
+        try {
+
+            String json = getResponseFromHttpUrl(url);
+            result = parsingJson(json);
+
+            if(result!=null)
+            {
+                DBUtils.deleteAll(sqLiteDatabase);
+                DBUtils.bulkInsert(sqLiteDatabase, result);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            sqLiteDatabase.close();
+        }
+
     }
 
 }
